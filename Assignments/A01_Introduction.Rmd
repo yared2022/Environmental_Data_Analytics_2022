@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Yared S. Asfaw"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -22,21 +22,20 @@ The completed exercise is due on <>.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: I don't have experience in data analytics, R, and Git, formally and informally; but I am highly interested in the field and thus, working hard to get the best out of the course and other reference materials.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: I am interested in and passionate about engaging myself in hands-on exercise to learn theories and practice. Thus, the contents and design of the course matche with my expectation, and make me feel confident over the entire course.  
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
-
+> Answer: I am not sure at this point, but I have committed myself to win over any challenge or fear that I will face as we go deep in the course. Moreover, in addition to my effort, I will do my best to take advantage of the resources persons available for the course (Instructure and TAs) at the highest possible level to address my concerns.
 
 ## 2) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository  and that you have updated your course README file. 
 
-> Answer: 
+> Answer: https://github.com/yared2022/Environmental_Data_Analytics_2022.git
 
 
