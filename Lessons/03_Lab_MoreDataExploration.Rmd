@@ -93,13 +93,25 @@ Question: In the R chunk below, write "dataframe1$". Press `tab` after you type 
 Find a ten-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. Create two vectors, one representing the high temperature on each of the ten days and one representing the low.
 
 ```{r}
+hightempforecastF <- c(31,40,35,45,50,53,40,31,50,55)
+lowtempforecastF <- c(13,14,15,15,15,15,14,13,15,15)
 
 ```
 
 Now, create two additional vectors that include the ten-day forecast for the high and low temperatures in Celsius. Use a function to create the two new vectors from your existing ones in Fahrenheit.
 
 ```{r}
+#higtempforecastC <- c(31,40,35,45,50,53,40,31,50,55)
+temp_convF_C <- function(tempF) 
+{
+  tempC = tempF * (5/9)+32
+  return(tempC)
+}
+hightempforecastC <- temp_convF_C(hightempforecastF)
+hightempforecastC
 
+lowtempforecastC <- temp_convF_C(lowtempforecastF)
+lowtempforecastC
 ```
 
 Combine your four vectors into a data frame and add informative column names.
@@ -134,8 +146,8 @@ Remember formatting of dates in R:
 # (code must be uncommented)
 today <- Sys.Date()
 format(today, format = "%B")
-#format(today, format = "")
-#format(today, format = "")
+format(today, format = "%y")
+format(today, format = "%m-%d-%Y")
 #format(today, format = "")
 
 ```
