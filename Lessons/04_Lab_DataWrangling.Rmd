@@ -58,10 +58,16 @@ NTL.phys.data.JunethruOctober <- filter(NTL.phys.data, daynum %in% c(152:304))
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
 
+class(NTL.phys.data$year4)
+NTL.phys.data_1999 <- filter(NTL.phys.data, year4 == 1999)
+head(NTL.phys.data_1999)
 
 # Exercise 2: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
 
+NTL.phys.data_TuLa <- filter(NTL.phys.data, lakename =="Tuesday Lake" & year4 %in% c(1990,1999))
+
+tail(NTL.phys.data_TuLa)
 
 ```
 Question: Why don't we filter using row numbers?
@@ -83,11 +89,21 @@ NTL.phys.data.processed <-
 
 #Exercise 3: Using a pipe filter NTL.phys.data for Tuesday Lake from 1990 through 1999 only for July 
 
+NTL.phys.data.Ex3 <- NTL.phys.data %>%
+  filter(lakename == "Tuesday Lake") %>%
+  filter(year4 %in% c(1990:1999)) %>%
+  filter(sampledate(month)==7)
 
-
-
+NTL.phys.data_TuLa <- filter(NTL.phys.data, lakename =="Tuesday Lake" & year4 %in% c(1990,1999))
 
 #Exercise 4: Using the data from part 3, a pipe and the summarise() function find the mean surface temperature (hints: you will need to add another filter for depth==0). Make sure you eliminate NAs before computing the means
+
+NTL.phys.data.EX4 <-
+NTL.phys.data.Ex3 %>%
+filter(depth==0)%>%
+filter(!is.not(temprature_C)) %>%
+  Summarize(mean = mean(temprature_C))
+
 
   
 ```
