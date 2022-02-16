@@ -35,13 +35,14 @@ ggsave("./Output/Plot_text.jpg",Plot_text, height = 4, width = 6, units = "in", 
 getwd()
 library(tidyverse)
 library(ggridges)
+#install.packages("viridis")
 library(viridis)
 library(RColorBrewer)
-library(colormap)
+#library(colormap)
 
 PeterPaul.chem.nutrients <- 
   read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
-EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv", stringsAsFactors = TRUE)
+EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC2122_Processed.csv", stringsAsFactors = TRUE)
 
 EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
 PeterPaul.chem.nutrients$sampledate <- as.Date(PeterPaul.chem.nutrients$sampledate, format = "%Y-%m-%d")
@@ -60,6 +61,10 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 # Color your points by year, and facet by lake in two rows.
 # Change the ylab name
 
+ggplot(subset(PeterPaul.chem.nutrients, depth==0), aes(x=daynum, y=temperature_C, color=year4)) +
+  geom_point() +
+  facet_wrap(vars(lakename), nrow = 2)+
+  ylab("Surface Temprature")
 
 #2. 
 # Plot temperature by date. Color your points by depth.
@@ -67,6 +72,12 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 # Change the color palette to magma and play with direction (+- 1), which one makes more sense?
 # Change x axis to include marker/labels every 5 years
 
+ggplot(PeterPaul.chem.nutrients, aes(x=sampledate, y=temperature_C)) +
+  geom_point(aes(color=depth), size=0.5) +
+  facet_wrap(vars(lakename), nrow = 2)+
+  ylab("Temprature in Celsius") +
+  scale_color_viridis(options="magma", direction = -1) +
+  scale_x_date(date_breks="5 years", date_lables = "%Y") 
 
 
 
@@ -81,10 +92,11 @@ Exercise: Plot relationships between air quality measurements
 # Plot AQI values for ozone by PM2.5, colored by latitude 
 # Make the points 50 % transparent
 # Add a line of best fit for the linear regression of these variables.
-
-
-
-
+ggplot(EPAair, aes(x=PM2.5, y=Ozone)) +
+  geom_point(aes(color=EPAair$meanLatitude), alpha = 0.5) +
+  geom_smooth(method = "lm", color="red") +
+  ylab(expression("O"[3]*"AQI Value"))
+  
 ```
 
 ## Plotting continuous vs. categorical variables
@@ -96,9 +108,16 @@ Exercise: Plot distributions of AQI values for EPAair.
 # 4. 
 # Create several types of plots depicting PM2.5, divided by year. 
 # Choose which plot displays the data best and justify your choice. 
+ggplot(EPAair, aes(x=Month, y= PM2.5, color=Yeat))+
+  geom_point() +
+  scale_x_continuous()
 
+facet_grid()
+facet_wrap()
 
+geom_boxplot()
 
+geom_dotplot()
 ```
 
 
