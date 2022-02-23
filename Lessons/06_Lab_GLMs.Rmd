@@ -149,10 +149,28 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 2. geom_boxplot of ozone divided by year . Add letters representing a significant difference between 2018 and 2019 (hint: stat_summary). 
 3. geom_violin of ozone divided by year, with the 0.5 quantile marked as a horizontal line. Add letters representing a significant difference between 2018 and 2019. 
 
-```{r}
+```{r, fig.height=3, fig.width=4}
 #Exercise 2:
+ggplot(EPAair, aes(x=Ozone, fill= as.factor(Year))) +
+  geom_density(alpha=0.5)+
+  scale_fill_manual(values = c("darkgreen", "darkblue"))+
+  labs(x="Ozone AQI Value", y= "Density", fill = "")
 
 
+ggplot(EPAair, aes(x=as.factor(Year), y=Ozone))+
+  geom_boxplot() +
+  stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4,
+               label= c("b", "a")) +
+  labs(x = "", y = "Ozone AQI Value") +
+  ylim(0, 85)
+
+
+ggplot(EPAair, aes(x=as.factor(Year), y=Ozone))+
+  geom_violin(draw_quantiles = 0.5) +
+  stat_summary(geom = "text", fun.y = max, vjust = -1, size = 4,
+               label= c("b", "a")) +
+  labs(x = "", y = "Ozone AQI Value") +
+  ylim(0, 85)
 ```
 
 ## Linear Regression
