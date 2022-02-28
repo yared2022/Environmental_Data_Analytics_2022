@@ -66,7 +66,8 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 
 > Exercise 1: State the hypotheses for testing mean of AQI index.
 
-> Answer: 
+> Answer: H0: mean >= 50
+          Ha: mean < 50
 
 
 ```{r}
@@ -74,7 +75,7 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 
 summary(EPAair$Ozone)
 EPAair.subsample <- sample_n(EPAair, 5000)
-
+summary(EPAair.subsample)
 # Evaluate assumption of normal distribution
 shapiro.test((EPAair.subsample$Ozone))
 ggplot(EPAair, aes(x = Ozone)) +
@@ -181,11 +182,17 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 
 ```{r}
 
-#Exercise 3: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
+#Exercise 3: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value (These are measures of goodness of fit).
+PM2.5_reg <- lm(data=EPAair, PM2.5 ~ Ozone)
+summary(PM2.5_reg)
 
-
+# The p-value is less than 0.05 (<2.2e-16) and the R^2 is 0.1316. 
 
 #Exercise 4: Build a scatterplot. Add a line and standard error for the linear regression. 
+ggplot(EPAair, aes(x=Ozone, y=PM2.5)) +
+  geom_point(color= "blue") +
+  geom_smooth(color= "red", method = "lm") +
+  mean(Litter$PM2.5)
 
 
 
@@ -199,13 +206,21 @@ What other variables can we add to improve model?
 ```{r}
 
 #Exercise 5: Build correlation plots and identify more possible explanatory variables to add to the regression.
+library(corrplot)
+# Start with by creating a subset of the selected variables in a separate
+# EPAair.subset <- 
+PM2.5_pre. <- EPAair %>% 
+  select(PM2.5, meanLat, meanLng, Ozone) %>% 
+  na.omit()
 
-
-
+PM2.5_pre.Corr <- cor(PM2.5_pre.)
+corrplot(PM2.5_pre.Corr, method = "ellipse")
+corrplot.mixed(PM2.5_pre.Corr , upper = "ellipse")
 
 #Exercise 6: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
 
-
+PM2.5_AIC <- lm(data = EPAair, PM2.5 ~ meanLat + Ozone + meanLng) 
+step(PM2.5_AIC)
 
 
 #Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
