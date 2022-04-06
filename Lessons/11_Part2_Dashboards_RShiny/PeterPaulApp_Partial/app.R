@@ -2,58 +2,60 @@
 library(shiny)
 library(shinythemes)
 library(tidyverse)
+library(bslib)
 
 #### Load data ----
 # Read in PeterPaul processed dataset for nutrients. 
 # Specify the date column as a date
 # Remove negative values for depth_id 
 # Include only lakename and sampledate through po4 columns
-nutrient_data <- 
-nutrient_data$sampledate <- as.Date()
-nutrient_data <-  %>%
-   %>%
-  
 
+nutrient_data <- read.csv("Data/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
+nutrient_data$sampledate <- as.Date(nutrient_data$sampledate, format="%Y-%m-%d")
+nutrient_data <-  nutrient_data %>% 
+  filter(depth_id >=0) %>%
+  select(lakename, sampledate:po4)
+  
 #### Define UI ----
-ui <- fluidPage(theme = shinytheme("yeti"),
-  # Choose a title
-  titlePanel(),
-  sidebarLayout(
-    sidebarPanel(
+
+ui <- fluidPage(
+    # Choose a title
+  titlePanel("Lakes' Nutrient Concentration"),
+    sidebarLayout(
+     sidebarPanel(
       
       # Select nutrient to plot
-      selectInput(inputId = ,
-                  label = ,
-                  choices = , 
-                  selected = ),
-      
-      # Select depth
-      checkboxGroupInput(inputId = ,
-                         label = ,
-                         choices = ,
-                         selected = ,
-      
-      # Select lake
-      checkboxGroupInput(inputId = ,
-                         label = ,
-                         choices = ,
-                         selected = ,
-
-      # Select date range to be plotted
-      sliderInput(inputId = ,
-                  label = ,
-                  min = ,
-                  max = ,
-                  value = ,
-
-    # Output: Description, lineplot, and reference
-    mainPanel(
-      # Specify a plot output
-      plotOutput( , brush = brushOpts(id = "scatterplot_brush")), 
-      # Specify a table output
-      tableOutput()
+      selectInput(inputId = "y",
+                  label = "Nutrient",
+                  choices = c("tn_ug", "tp_ug", "nh34", "no23", "po4"), 
+                  selected = "tn_ug"),
+    
+    # Select depth
+    checkboxGroupInput(inputId = "x",
+                       label = "Depth ID",
+                       choices = unique(nutrient_data$depth_id),
+                       selected = c(0, 7)),
+    
+    # Select lake
+    checkboxGroupInput(inputId = "lakename",
+                       label = "Lake",
+                       choices = c("Paul Lake", "Peter Lake") ,
+                       selected = "Paul Lake"),
+    
+    # Select date range to be plotted
+    sliderInput(inputId = "date",
+                label = "Year",
+                min = as.Date("1991-05-20"),
+                max = as.Date("2016-08-16"),
+                value = c(as.Date("1991-05-20"), as.Date("2016-08-16")))),
+    
+  # Output: Description, lineplot, and reference
+      mainPanel(
+        plotOutput("scatterplot", brush = brushOpts(id = "scatterplot_brush")), 
+        tableOutput("mytable")
     )))
-
+  
+# theme = shinytheme("yeti"), it is not begin accepted
 #### Define server  ----
 server <- function(input, output) {
   
@@ -61,30 +63,31 @@ server <- function(input, output) {
      filtered_nutrient_data <- reactive({
         nutrient_data %>%
          # Filter for dates in slider range
-         filter() %>%
+         filter(sampledate >= input$date[1] & sampledate <= input$date[2]) %>%
          # Filter for depth_id selected by user
-         filter() %>%
+         filter(depth_id %in% input$x) %>%
          # Filter for lakename selected by user
-         filter() 
+         filter(lakename %in% input$lakename) 
      })
-    
-    # Create a ggplot object for the type of plot you have defined in the UI  
+     
+     # Create a ggplot object for the type of plot you have defined in the UI  
        output$scatterplot <- renderPlot({
-        ggplot( ,#dataset
-               aes_string(x = , y = , 
-                          fill = , shape = )) +
-          geom_point() +
-          theme_classic() +
-          scale_shape_manual() +
-          labs(x = , y = , shape = , fill = ) +
-          scale_fill_distiller()
-          #scale_fill_viridis_c()
+        ggplot(filtered_nutrient_data(),
+               aes_string(x = "sampledate", y = input$y, 
+                          fill = "depth_id" , shape = "lakename")) +
+          geom_point(alpha=0.8, size=2) +
+          theme_classic(base_size = 14) +
+          scale_shape_manual(values=c(21,24)) +
+          labs(x = "Year" , y = expression(Concentration ~ (mu*g / L)), 
+               shape = "lakename", fill = "depth_id" ) +
+          scale_fill_distiller(palette = "YlOrBr", guide = "colorbar", direction = 1)
+          #scale_fill_viridis_c(option = "viridis", begin = 0, end = 0.8, direction = -1)
       })
        
     # Create a table that generates data for each point selected on the graph  
        output$mytable <- renderTable({
-         brush_out <- brushedPoints( ,# dataset, 
-                                     ) # input
+         brush_out <- brushedPoints(filtered_nutrient_data(), input$scatterplot_brush)
+         
        }) 
        
   }

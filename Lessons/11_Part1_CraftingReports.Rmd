@@ -3,8 +3,13 @@ title: '11: Crafting Reports'
 author: Environmental Data Analytics | John Fay & Luana Lima | Developed by Kateri Salk
 date: "Spring 2022"
 output:
- pdf_document: default
-
+ pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    number_sections: yes
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## LESSON OBJECTIVES
@@ -64,12 +69,34 @@ See: <https://rmarkdown.rstudio.com> and class recording.
 ## WHY R MARKDOWN?
 
 <Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).> 
+bullet points\
 
+* easy to write plain text format
+* can support code and text in an integrated manner
+* helps to create different documents (reports, presentation slides)
+* provides an environment to organize codes
+* helps to create presentations live from the data, thus enable to easily update the presentation when additional information or data imported (reproduciblity)
+* helps to collaborate with others
+* easy to integrate with Github
+
+\newpage
 
 ## TEXT EDITING CHALLENGE
 
 Create a table below that details the example datasets we have been using in class. The first column should contain the names of the datasets and the second column should include some relevant information about the datasets. (Hint: use the cheat sheets to figure out how to make a table in Rmd)
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Constructing a table
+Names_of_Datasets <- c("EPAair_O3_NC2018_raw.csv", "EPAair_O3_NC2019_raw.csv", "EPAair_PM25_NC2018_raw.csv", "EPAair_PM25_NC2018_raw.csv", "NTL-LTER_Lake_ChemistryPhysics_Raw.csv", "USGS_Site02085000_Flow_Raw.csv", "NTL-LTER_Lake_Nutrients_Raw.csv", "NWIS_SiteFlowData_NE_RAW.csv", "Wind_Speed_PortArthurTX.csv", "ECOTOX_Neonicotinoids_Insects_raw.csv")
+
+metadata <- c("README_EPAair_PM25andO3.md", "README_NEON_NIWO_Litter.md", "README_NTL-LTER_Lake.md", "README_USGS_Site02085000_FLow.md", "README_ECOTOX_Neonicotinoids_Insects.md")
+ 
+Table1 <- data.frame("Dataset name"=Names_of_Datasets, "Metadata"=metadata) 
+# Renaming column names
+colnames(Table1) <- c("Dataset name", "Metadata")
+knitr::kable(Table1, 
+ caption = "Datasets used in the class and their metadata")
+```
 
 ## R CHUNK EDITING CHALLENGE
 
@@ -77,15 +104,38 @@ Create a table below that details the example datasets we have been using in cla
 
 Create an R chunk below that installs the package `knitr`. Instead of commenting out the code, customize the chunk options such that the code is not evaluated (i.e., not run).
 
-
+```{r eval=FALSE, include=FALSE}
+install.packages("knitr")
+```
+\newpage
 ### Setup
-
 Create an R chunk below called "setup" that checks your working directory, loads the packages `tidyverse`, `lubridate`, and `knitr`, and sets a ggplot theme. Remember that you need to disable R throwing a message, which contains a check mark that cannot be knitted.
 
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.
 
 Customize the chunk options such that the code is run but is not displayed in the final document.
 
+The working directory is: 
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+getwd()
+#setwd(dir = '../Environmental_Data_Analytics_2022')
+#getwd()
+library(tidyverse)
+library(lubridate)
+library(knitr)
+
+mytheme <- theme_classic() +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right") 
+
+theme_set(mytheme)
+# Importing the dataset
+lake_nutrient_data <- read.csv('../Environmental_Data_Analytics_2022/Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv', sep = ",", header = TRUE, stringsAsFactors = TRUE)
+head(lake_nutrient_data)
+# Formatting the date column to Date
+lake_nutrient_data$sampledate <- as.Date(lake_nutrient_data$sampledate, format = "%m/%d/%y")
+```
+The first six rows of the dataset
 
 ### Data Exploration, Wrangling, and Visualization
 
@@ -95,17 +145,88 @@ Create an R chunk below to create a processed dataset do the following operation
 -   Include only surface samples (depth = 0 m)
 -   Drop rows with missing data
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Creating a processed dataset
+lake_nutrient_data_processed <- lake_nutrient_data %>% 
+  select(lakename:sampledate, depth:po4) %>% 
+  filter(depth==0) %>% 
+  drop_na()
+```
+
 Create a second R chunk to create a summary dataset with the mean, minimum, maximum, and standard deviation of total nitrogen concentrations for each lake. Create a second summary dataset that is identical except that it evaluates total phosphorus. Customize the chunk options such that the code is run but not displayed in the final document.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Creating summary dataset for total nitrogen concentration of each lake
+lake_tn_con_summary <-lake_nutrient_data_processed %>% 
+  group_by(lakename) %>% 
+  summarise("Mean tn" =mean(tn_ug),
+            "Minimium tn" = min(tn_ug),
+            "Maximum tn" = max(tn_ug),
+            "Std. dev. tn" = sd(tn_ug))
+
+# Creating summary dataset for total phosphorus concentration of each lake
+lake_tp_con_summary <-lake_nutrient_data_processed %>% 
+  group_by(lakename) %>% 
+  summarise("Mean tp" =mean(tp_ug),
+            "Minimium tp" = min(tp_ug),
+            "Maximum tp" = max(tp_ug),
+            "Std. dev. tp" = sd(tp_ug))
+```
+
 
 Create a third R chunk that uses the function `kable` in the knitr package to display two tables: one for the summary dataframe for total N and one for the summary dataframe of total P. Use the `caption = " "` code within that function to title your tables. Customize the chunk options such that the final table is displayed but not the code used to generate the table.
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Creating tables 
+Table2 <- data.frame(lake_tn_con_summary)
+kable(Table2, 
+ caption = "Summary of total nitrogen concentrations for each lake")
+
+Table3 <- data.frame(lake_tp_con_summary)
+kable(Table3, 
+ caption = "Summary of total phosphrus concentrations for each lake")
+```
+
+\newpage
+
 Create a fourth and fifth R chunk that generates two plots (one in each chunk): one for total N over time with different colors for each lake, and one with the same setup but for total P. Decide which geom option will be appropriate for your purpose, and select a color palette that is visually pleasing and accessible. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, customize the chunk options such that the figures are aligned on the left side of the page. Lastly, add a fig.cap chunk option to add a caption (title) to your plot that will display underneath the figure.
 
+```{r fig.align='left', fig.cap = "Total nitrogen (TN) concentrations of all lakes over time", echo=FALSE, warning=FALSE, message=FALSE}
+# Plotting the total nitrogen concentrations over time for all lakes (each lake with a different color)
+ggplot(lake_nutrient_data_processed, aes(x=sampledate, y=tn_ug))+
+  geom_point(aes(color=lakename)) +
+  geom_smooth(color="red", method = "lm")+
+  scale_fill_distiller(palette = "YlOrBr", guide = "colorbar", 
+                       direction = 1)+
+  ylab(expression("TN Concentration" ~ (mu*g / L))) +
+  xlab("Year")
 
+```
+
+```{r fig.align='left', fig.cap = "Total phosphurus (TP) concentrations of all lakes over time", echo=FALSE, warning=FALSE, message=FALSE }
+# Plotting the total phosphurus concentrations over time for all lakes (each lake with a different color)
+ggplot(lake_nutrient_data_processed, aes(x=sampledate, y=tp_ug))+
+  geom_point(aes(color=lakename)) +
+  geom_smooth(color="red", method = "lm")+
+  ylab(expression("TP Concentration" ~ (mu*g / L)))+
+  xlab("Year")
+
+```
+
+\newpage
 ### Communicating results
 
 Write a paragraph describing your findings from the R coding challenge above. This should be geared toward an educated audience but one that is not necessarily familiar with the dataset. Then insert a horizontal rule below the paragraph. Below the horizontal rule, write another paragraph describing the next steps you might take in analyzing this dataset. What questions might you be able to answer, and what analyses would you conduct to answer those questions?
 
+> There is a difference and variation in the total nitrogen (TN) concentrations of all the lakes over time. The TN concentrations for West Long Lake, East Long Lake and Peter lake were in the range of 2000 to 3000 microgm/lt. the West Long Lake being with the highest concentration in the year 1997. These concentrations decreased in the subsequent years reaching below 1000 microgm/lt levels. For the other lakes, though there is a flactuation in the level of TN oncentrations over time, it all lies below 1000 microgm/lt. In general, the TN concetrations of lakes has shown a slight increase over time from the 1992 levels.
+
+> In a similar manner, the total phospurus (TP) concentrations for all the lakes varies and show a flactuation overtime. And in general, there is a slight increasing trend of lakes TP concentration from 1992 levels. East Long Lake, however, exhibits the most significant TP concentrations starting from end of 1995 until 1999 when compared with the other lakes TP concentration levels. Following East Long Lake, Peter Lake and West Long Lake also show a high TP concentration levels in the year 1997 which of course then show a decreasing trend until 2000.
+
+----
+As a next step in analyzing these datasets, investigating the driving factors that push the increase of nutrients (TN and TP) concentration in lakes in the year 1997 might be a good start point. For that purpose, some of the research questions that can be raised based on those information might include: What has caused the increase in nutrient concentrations in 1997 and what make them drop over the coming years? Has the fluctuations in the nutrients concentrations impacted the lakes ecosystem? 
+
+
+\newpage
 
 ## KNIT YOUR PDF
 When you have completed the above steps, try knitting your PDF to see if all of the formatting options you specified turned out as planned. This may take some troubleshooting.
